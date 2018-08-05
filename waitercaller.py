@@ -1,4 +1,7 @@
+from bitlyhelper import BitlyHelper
+import config
 from flask import Flask
+from flask.ext.login import current_user
 from flask.ext.login import LoginManager
 from flask.ext.login import login_required
 from flask.ext.login import login_user
@@ -7,19 +10,21 @@ from flask import redirect
 from flask import render_template
 from flask import request
 from flask import url_for
-from mockdbhelper import MockDBHelper as DBHelper
+if config.test:
+    from mockdbhelper import MockDBHelper as DBHelper
 from passwordhelper import PasswordHelper
 from user import User
 
 DB = DBHelper()
 PH = PasswordHelper()
+BH = BitlyHelper()
 app = Flask(__name__)
 app.secret_key = 'XcCfVBb7GE/45Wi+3AHxhjxCdY11ebTBXzddrxV6zvwCJtfNbPCS70Iy1FMmS65W7GRpS8vuV3ehFXyH+RGG5caiDQK/Dh+9pwy'
 login_manager = LoginManager(app)
 
 @app.route("/")
 def home():
-    return render_template("home.html")
+    return render_template("home.html", routing_prefix = config.routing_prefix)
 
 @login_manager.user_loader
 def load_user(user_id):
@@ -30,7 +35,29 @@ def load_user(user_id):
 @app.route("/account")
 @login_required
 def account():
-    return "You are logged in"
+    tables = DB.get_tables(current_user.get_id())
+    return render_template("account.html", tables = tables, routing_prefix = config.routing_prefix)
+
+@app.route("/account/createtable", methods = ["POST"])
+@login_required
+def account_createtable():
+    tablename = request.form.get("tablenumber")
+    tableid = DB.add_table(tablename, current_user.get_id())
+    new_url = BH.shorten_url(config.base_url + "newrequest/" + tableid)
+    DB.update_table(tableid, new_url)
+    return redirect(url_for('account'))
+
+@app.route("/account/deletetable")
+@login_required
+def account_deletetable():
+    tableid = request.args.get("tableid")
+    DB.delete_table(tableid)
+    return redirect(url_for('account'))
+
+@app.route("/dashboard")
+@login_required
+def dashboard():
+    return render_template("dashboard.html", routing_prefix = config.routing_prefix)
 
 @app.route("/login", methods = ["POST"])
 def login():
