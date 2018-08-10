@@ -16,6 +16,8 @@ from forms import LoginForm
 from forms import RegistrationForm
 if config.test:
     from mockdbhelper import MockDBHelper as DBHelper
+else:
+    from dbhelper import DBHelper
 from passwordhelper import PasswordHelper
 from user import User
 
@@ -49,7 +51,7 @@ def account_createtable():
     form = CreateTableForm(request.form)
     if form.validate():
         tableid = DB.add_table(form.tablenumber.data, current_user.get_id())
-        new_url = BH.shorten_url(config.base_url + "newrequest/" + tableid)
+        new_url = BH.shorten_url(config.base_url + "newrequest/" + str(tableid))
         DB.update_table(tableid, new_url)
         return redirect(url_for('account'))
     return render_template('account.html', createtableform = form, tables = DB.get_tables(current_user.get_id()), routing_prefix = config.routing_prefix)
