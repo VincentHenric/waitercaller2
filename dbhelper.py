@@ -20,7 +20,7 @@ class DBHelper:
         return new_id
 
     def update_table(self, _id, url):
-        self.db.tables.update({"_id": _id, {"$set": {"url": url}}})
+        self.db.tables.update({"_id": _id}, {"$set": {"url": url}})
 
     def get_tables(self, owner_id):
         return list(self.db.tables.find({"owner": owner_id}))
