@@ -16,7 +16,7 @@
           <th>Delete</th>
         </tr>
         {% for table in tables %}
-        <form class="form-inline" action="{{route_prefix}}/account/deletetable">
+        <form class="form-inline" action="{{routing_prefix}}/account/deletetable">
           <tr>
             <td>{{table.number}}</td>
             <td>{{table.url}}</td>
@@ -27,7 +27,7 @@
         {% endfor %}
       </table>
       <h2>Add new table</h2>
-      <form class="form-inline" action="{{route_prefix}}/account/createtable" method="POST">
+      <form class="form-inline" action="{{routing_prefix}}/account/createtable" method="POST">
         <div class="form-group">
           {% if createtableform.tablenumber.errors %}
           <ul class="errors">
@@ -35,7 +35,7 @@
             <li>{{error}}</li>
             {% endfor %}
           </ul>
-          {% endif %}      
+          {% endif %}
         {{createtableform.csrf_token}}
         {{createtableform.tablenumber(class="form-control", placeholder="Table number or name")}}
         {{createtableform.submit(value="Create", class="btn btn-primary")}}
